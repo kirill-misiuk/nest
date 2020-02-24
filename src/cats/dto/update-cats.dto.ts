@@ -1,4 +1,6 @@
 export class UpdateCatsDto {
-  name: string;
-  age: number;
+    _id: string;
+    name: string;
+    color: string;
+    age: number;
 }
