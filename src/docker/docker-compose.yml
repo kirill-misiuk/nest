@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  mongodb:
+    image: mongo:4.2
+    container_name: "nest-mongo"
+    volumes:
+      - nest_mdata_volume:/data/db
+    ports:
+      - 27019:27017
+    command: [mongod]
+
+volumes:
+  nest_mdata_volume:
+    driver: local  # is already local by default
+
+
