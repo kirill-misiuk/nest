@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { Injectable, Inject } from '@nestjs/common';
 import { CatI } from './interfaces/cat.interface';
 import { from, Observable, of } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 
 @Injectable()
 export class CatsRepository {
@@ -21,7 +21,8 @@ export class CatsRepository {
     create(cat): Observable<object> {
         return from(this.catModel.create(cat));
     }
-    update(data): Observable<any[]> {
+
+    update(data): Observable<CatI[]> {
         return from(
             this.catModel
                 .findOne({ _id: data._id })
@@ -34,6 +35,26 @@ export class CatsRepository {
                 }
                 return of(foundCat);
             }),
+        );
+    }
+    delete(ids): Observable<object[]> {
+        return from(
+            this.catModel
+                .find({ _id: { $in: ids } }, '_id')
+                .lean()
+                .exec(),
+        ).pipe(
+            mergeMap(foundCats =>
+                from(this.catModel.deleteMany({ _id: { $in: foundCats } })).pipe(map(() => foundCats)),
+            ),
+        );
+    }
+    findOne(options): Observable<object> {
+        return of(
+            this.catModel
+                .findOne(options)
+                .lean()
+                .exec(),
         );
     }
 }

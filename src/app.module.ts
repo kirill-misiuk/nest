@@ -6,12 +6,11 @@ import { CatsService } from './cats/cats.service';
 import { CatsController } from './cats/cats.controller';
 import { catsProviders } from './cats/cats.providers';
 import { CatsRepository } from './cats/cats.repository';
-
-
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ DatabaseModule],
-  controllers: [AppController, CatsController],
-  providers: [AppService, CatsService,CatsRepository, ...catsProviders],
+    imports: [ConfigModule.forRoot(), DatabaseModule],
+    controllers: [AppController, CatsController],
+    providers: [AppService, CatsService, CatsRepository, ...catsProviders],
 })
 export class AppModule {}

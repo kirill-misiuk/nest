@@ -1,5 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Res } from '@nestjs/common';
-import { of } from 'rxjs';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { CreateCatsDto } from './dto/create-cats.dto';
 import { UpdateCatsDto } from './dto/update-cats.dto';
@@ -13,24 +12,28 @@ export class CatsController {
     findAll(@Res() res: Response) {
         return this.catsService.findAll().subscribe({
             next: data => res.status(200).json({ status: res.statusCode, data }),
+            error: error => res.status(400).json({ status: res.statusCode, error }),
         });
     }
 
     @Post()
-    create(@Body() createCatDto: CreateCatsDto, @Res() res: Response): object {
+    create(@Body() createCatDto: CreateCatsDto, @Res() res: Response) {
         return this.catsService.create(createCatDto).subscribe({
             next: data => res.status(200).json({ status: res.statusCode, data }),
+            error: error => res.status(400).json({ status: res.statusCode, error }),
         });
     }
 
     @Get(':_id')
-    findOne(@Param() params): Array<any> {
-        console.log(params._id);
-        return [];
+    findOne(@Param() params, @Res() res: Response) {
+        return this.catsService.findOne(params._id).subscribe({
+            next: data => res.status(200).json({ status: res.statusCode, data }),
+            error: error => res.status(400).json({ status: res.statusCode, error }),
+        });
     }
 
     @Put(':_id')
-    update(@Param() params, @Body() updateCatDto: UpdateCatsDto): object {
+    update(@Param() params, @Body() updateCatDto: UpdateCatsDto, @Res() res: Response) {
         const { _id } = params;
         if (_id !== updateCatDto._id) {
             throw new HttpException(
@@ -41,12 +44,19 @@ export class CatsController {
                 403,
             );
         } else {
-            return this.catsService.update(updateCatDto);
+            return this.catsService.update(updateCatDto).subscribe({
+                next: data => res.status(200).json({ status: res.statusCode, data }),
+                error: error => res.status(400).json({ status: res.statusCode, error }),
+            });
         }
     }
 
-    @Delete(':id')
-    remove(@Param() id: string) {
-        return of(`deleted ${id} `);
+    @Delete()
+    remove(@Query() query, @Res() res: Response) {
+        const { _id } = query;
+        return this.catsService.delete(_id).subscribe({
+            next: data => res.status(200).json({ status: res.statusCode, data }),
+            error: error => res.status(400).json({ status: res.statusCode, error }),
+        });
     }
 }
